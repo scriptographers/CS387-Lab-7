@@ -1,13 +1,19 @@
+from operator import add
 from pyspark.sql import SparkSession
 
 # Constants
 PATH = "../data/data1.csv"
+PATH_1B = "q1b.csv"
 
 def pprint(ll):
     print()
     for i, l in enumerate(ll):
         print(f"{i}:", ", ".join([str(li) for li in l]))
     print()
+
+def row2csv(row):
+    crow = ", ".join([str(i) for i in row])
+    return crow
 
 def preprocess(row):
     prow = row.split(",")[1:] # remove first column
@@ -39,7 +45,19 @@ if __name__ == "__main__":
 
     # Flatten
     gaf = ga.flatMap(lambda row: row)
-    pprint(gaf.take(5))
+    print(gaf.take(5))
+
+    # Count
+    gc = gaf.map(lambda item: (item, 1))
+    gc = gc.reduceByKey(add)
+    pprint(gc.take(5))
+
+    # Save as csv
+    with open(PATH_1B, "w+") as f:
+        gc_list = gc.map(lambda row: row2csv(row)).collect()
+        for row in gc_list:
+            f.write(row)
+            f.write("\n")
 
     # Stop
     spark.stop()
