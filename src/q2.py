@@ -1,3 +1,4 @@
+import re
 from pyspark.sql import SparkSession
 
 # Constants
@@ -10,14 +11,12 @@ def pprint(ll):
     print()
 
 def preprocess(row):
-    prow = row.replace("\"", "").replace("[", "").replace("]", "").split(" ")
-    host = prow[0]
-    timestamp = prow[3]
-    req = prow[5]
-    status = int(prow[8])
-    length = int(prow[9])
-    prow = [host, timestamp, req, status, length]
-    return prow
+    # Match 5 groups
+    m = re.match(r"(.+) - - \[(\d{2}\/\w{3}\/\d{4}:\d{2}:\d{2}:\d{2}) \+\d{4}\] \"(\w+).+\" (\d{3}) (\d+) .+", row)
+    if m:
+        return [m.group(i+1) for i in range(5)]
+    else:
+        return None
 
 if __name__ == "__main__":
 
@@ -32,6 +31,12 @@ if __name__ == "__main__":
     g = g.map(lambda row: preprocess(row))
 
     pprint(g.take(5))
+
+    # Bad rows (takes time, uncomment before submitting)
+    # n_bad = g.filter(lambda row: row is None).count()
+    # print(f"Number of bad Rows : {n_bad}")
+
+
 
     # Stop
     spark.stop()
