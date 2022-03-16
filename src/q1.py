@@ -59,5 +59,9 @@ if __name__ == "__main__":
             f.write(row)
             f.write("\n")
 
+    # Top 5
+    gc_sorted = gc.sortBy(lambda row: row[1], ascending = False)
+    pprint(gc_sorted.take(5))
+
     # Stop
     spark.stop()
