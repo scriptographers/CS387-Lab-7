@@ -21,7 +21,14 @@ def preprocess(row):
     return prow
 
 def cross(row):
-    cp = [(i1, i2) for i1 in row for i2 in row if i1 != i2]
+    cp = set()
+    for i1 in row:
+        for i2 in row:
+            if i1 < i2:
+                cp.add((i1, i2))
+            elif i1 > i2:
+                cp.add((i2, i1))
+    cp = list(cp)
     return cp
 
 if __name__ == "__main__":
