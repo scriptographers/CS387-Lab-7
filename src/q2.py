@@ -15,8 +15,8 @@ SUBPARTS = [
     # "De",
     # "Df",
     # "Dg",
-    "Dh",
-    # "Di",
+    # "Dh",
+    "Di",
     # "Dj",
 ]
 
@@ -171,7 +171,18 @@ if __name__ == "__main__":
     
     # Most active hour
     if "Di" in SUBPARTS:
-        pass
+        day_hr = g_clean.\
+            map(lambda row: ((row[1][:11], int(row[1][-4:].split(":")[0])), 1)).\
+            reduceByKey(add).\
+            map(lambda row: (row[0][0], (row[0][1], row[1]))).\
+            reduceByKey(lambda x1, x2: max(x1, x2, key = lambda x: x[1])).\
+            sortBy(lambda row: row[0], ascending = True).\
+            collect()
+        print()
+        print("Active Hours:")
+        print("day\thour")
+        for t in day_hr:
+            print(f"{t[0]}\t{t[1][0]}")
 
     # Response lengths
     if "Dj" in SUBPARTS:
