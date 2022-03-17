@@ -39,11 +39,16 @@ if __name__ == "__main__":
     n_clean = g_clean.count()
     n_total = g.count()
     n_bad = n_total - n_clean
+    print()
     print(f"Number of bad Rows : {n_bad}")
 
     # Status distribution
-    stat_distr = g_clean.map(lambda row: (row[3], 1)).reduceByKey(add).collect()
-    stat_distr = sorted(stat_distr, key = lambda t: int(t[0]))
+    stat_distr = \
+        g_clean.map(lambda row: (row[3], 1)).\
+        reduceByKey(add).\
+        sortBy(lambda t: t[1], ascending = False).\
+        collect()
+    print()
     print("HTTP status analysis:")
     print("status\tcount")
     for t in stat_distr:
@@ -58,16 +63,59 @@ if __name__ == "__main__":
     plt.close(fig)
 
     # Hosts distribution
-    host_distr = g_clean.map(lambda row: (row[0], 1)).reduceByKey(add).collect()
-    host_distr = sorted(host_distr, key = lambda t: t[0])
+    host_distr = \
+        g_clean.\
+        map(lambda row: (row[0], 1)).\
+        reduceByKey(add).\
+        sortBy(lambda t: t[1], ascending = False)
+    n_hosts = host_distr.count()
+    print()
     print("Frequent Hosts:")
     print("host\tcount")
-    for t in host_distr:
+    for t in host_distr.take(10):
         print(f"{t[0]}\t{t[1]}")
 
     # Unique hosts
+    print()
     print("Unique hosts:")
-    print(len(host_distr))
+    print(n_hosts)
+
+    # Unique hosts per day
+    host_and_day = g_clean.map(lambda row: (row[0], row[1][:11])).distinct()
+    pprint(host_and_day.take(5))
+    hosts_per_day = \
+        host_and_day.\
+        groupBy(lambda row: row[1]).\
+        map(lambda row: (row[0], len(row[1]))).\
+        sortBy(lambda row: row[0], ascending = True).\
+        collect()
+    print()
+    print("Unique hosts per day:")
+    print("day\thosts")
+    for t in hosts_per_day:
+        print(f"{t[0]}\t{t[1]}")
+
+    # Line graph
+    days = [t[0] for t in hosts_per_day]
+    n_hosts = [t[1] for t in hosts_per_day]
+    fig = plt.figure()
+    plt.plot(days, n_hosts)
+    plt.ylabel("Hosts count")
+    plt.xlabel("Day") 
+    plt.title("Number of Unique Hosts Daily")
+    plt.savefig("q2Df.png")
+    plt.close(fig)
+
+    # Response lengths
+    g_res = g_clean.map(lambda row: int(row[-1]))
+    min_res = g_res.min()
+    max_res = g_res.max()
+    avg_res = g_res.mean()
+    print()
+    print("Response length statistics:")
+    print(f"Minimum length: {min_res}")
+    print(f"Maximum length: {max_res}")
+    print(f"Average length: {avg_res}")
 
     # Stop
     spark.stop()
