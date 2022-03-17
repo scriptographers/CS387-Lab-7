@@ -14,8 +14,8 @@ SUBPARTS = [
     # "Dd",
     # "De",
     # "Df",
-    "Dg",
-    # "Dh",
+    # "Dg",
+    "Dh",
     # "Di",
     # "Dj",
 ]
@@ -138,6 +138,40 @@ if __name__ == "__main__":
         print("Failed HTTP Clients:")
         for t in g_st:
             print(f"{t[0]}") # \t{t[1]}
+
+    # Requests per hour
+    if "Dh" in SUBPARTS:
+        hr_st = \
+            g_clean.filter(lambda row: (row[1][:11] == "22/Jan/2019")).\
+            map(lambda row: (int(row[1][-4:].split(":")[0]), row[3]))
+        g_tot = hr_st.\
+                map(lambda row: (row[0], 1)).\
+                reduceByKey(add).\
+                sortBy(lambda row: row[0], ascending = True).\
+                collect()
+        g_failed = hr_st.\
+                filter(lambda row: (row[1][0] == "4" or row[1][0] == "5")).\
+                map(lambda row: (row[0], 1)).\
+                reduceByKey(add).\
+                sortBy(lambda row: row[0], ascending = True).\
+                collect()
+
+        labels = [t[0] for t in g_tot]
+        y_tot = [t[1] for t in g_tot]
+        y_fl = [t[1] for t in g_failed]
+
+        fig = plt.figure()
+        plt.plot(labels, y_tot, label = "Total requests")
+        plt.plot(labels, y_fl, label = "Failed requests")
+        plt.ylabel("Number of requests")
+        plt.xlabel("Hour") 
+        plt.legend()
+        plt.savefig("q2Dh.png")
+        plt.close(fig)
+    
+    # Most active hour
+    if "Di" in SUBPARTS:
+        pass
 
     # Response lengths
     if "Dj" in SUBPARTS:
