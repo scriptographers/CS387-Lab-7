@@ -1,4 +1,4 @@
 Response length statistics:
 Minimum length: 0
 Maximum length: 1249490
-Average length: 12433.164404879208
+Average length: 12433.173875249411
