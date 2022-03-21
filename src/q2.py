@@ -198,7 +198,7 @@ if __name__ == "__main__":
             f.write("Active Hours:\n")
             f.write("day\thour\n")
             for t in day_hr:
-                f.write(f"{t[0]}\t{t[1][0]}\n")
+                f.write(f"{t[0]}\t{t[1][0]:02}:00\n")
 
     # Response lengths
     if "Dj" in SUBPARTS:
