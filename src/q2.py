@@ -210,9 +210,9 @@ if __name__ == "__main__":
 
         with open("j.txt", "w+") as f:
             f.write("Response length statistics:\n")
-            f.write(f"Minimum length: {min_res}\n")
-            f.write(f"Maximum length: {max_res}\n")
-            f.write(f"Average length: {avg_res}\n")
+            f.write(f"Minimum length {min_res}\n")
+            f.write(f"Maximum length {max_res}\n")
+            f.write(f"Average length {avg_res}\n")
 
     # Stop
     spark.stop()
