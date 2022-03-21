@@ -20,20 +20,23 @@ SUBPARTS = [
     "Dj",
 ]
 
+
 def pprint(ll):
     print()
     for i, l in enumerate(ll):
         print(f"{i}:", ", ".join([str(li) for li in l]))
     print()
 
+
 def preprocess(row):
     # Match 5 groups
     rgx = r"(\d+.\d+.\d+.\d+) .+ .+ \[(\d{2}\/\w{3}\/\d{4}:\d{2}:\d{2}:\d{2}) [\+|\-]\d{4}\] \"([A-Z]+) .+\" (\d{3}) (\d+) \".*\" \".*\" \".*\""
     m = re.match(rgx, row)
     if m:
-        return [m.group(i+1) for i in range(5)]
+        return [m.group(i + 1) for i in range(5)]
     else:
         return None
+
 
 if __name__ == "__main__":
 
@@ -61,7 +64,7 @@ if __name__ == "__main__":
         stat_distr = \
             g_clean.map(lambda row: (row[3], 1)).\
             reduceByKey(add).\
-            sortBy(lambda t: t[1], ascending = False).\
+            sortBy(lambda t: t[1], ascending=False).\
             collect()
 
         with open("a.txt", "w+") as f:
@@ -86,7 +89,7 @@ if __name__ == "__main__":
             g_clean.\
             map(lambda row: (row[0], 1)).\
             reduceByKey(add).\
-            sortBy(lambda t: t[1], ascending = False)
+            sortBy(lambda t: t[1], ascending=False)
 
         with open("c.txt", "w+") as f:
             f.write("Frequent Hosts:\n")
@@ -111,7 +114,7 @@ if __name__ == "__main__":
             host_and_day.\
             groupBy(lambda row: row[1]).\
             map(lambda row: (row[0], len(row[1]))).\
-            sortBy(lambda row: row[0], ascending = True).\
+            sortBy(lambda row: row[0], ascending=True).\
             collect()
 
         with open("e.txt", "w+") as f:
@@ -127,7 +130,7 @@ if __name__ == "__main__":
         fig = plt.figure()
         plt.plot(days, n_hosts)
         plt.ylabel("Hosts count")
-        plt.xlabel("Day") 
+        plt.xlabel("Day")
         plt.title("Number of Unique Hosts Daily")
         plt.savefig("f.jpg")
         plt.close(fig)
@@ -139,13 +142,13 @@ if __name__ == "__main__":
             map(lambda row: (row[0], row[3])).\
             groupBy(lambda row: row[0]).\
             map(lambda row: (row[0], len(row[1]))).\
-            sortBy(lambda row: row[1], ascending = False).\
+            sortBy(lambda row: row[1], ascending=False).\
             take(5)
-        
-        with open("e.txt", "w+") as f:
+
+        with open("g.txt", "w+") as f:
             f.write("Failed HTTP Clients:\n")
             for t in g_st:
-                f.write(f"{t[0]}\n") # \t{t[1]}
+                f.write(f"{t[0]}\n")  # \t{t[1]}
 
     # Requests per hour
     if "Dh" in SUBPARTS:
@@ -155,31 +158,31 @@ if __name__ == "__main__":
             map(lambda row: (int(row[1][-4:].split(":")[0]), row[3]))
 
         g_tot = hr_st.\
-                map(lambda row: (row[0], 1)).\
-                reduceByKey(add).\
-                sortBy(lambda row: row[0], ascending = True).\
-                collect()
+            map(lambda row: (row[0], 1)).\
+            reduceByKey(add).\
+            sortBy(lambda row: row[0], ascending=True).\
+            collect()
 
         g_failed = hr_st.\
-                filter(lambda row: (row[1][0] == "4" or row[1][0] == "5")).\
-                map(lambda row: (row[0], 1)).\
-                reduceByKey(add).\
-                sortBy(lambda row: row[0], ascending = True).\
-                collect()
+            filter(lambda row: (row[1][0] == "4" or row[1][0] == "5")).\
+            map(lambda row: (row[0], 1)).\
+            reduceByKey(add).\
+            sortBy(lambda row: row[0], ascending=True).\
+            collect()
 
         labels = [t[0] for t in g_tot]
         y_tot = [t[1] for t in g_tot]
         y_fl = [t[1] for t in g_failed]
 
         fig = plt.figure()
-        plt.plot(labels, y_tot, label = "Total requests")
-        plt.plot(labels, y_fl, label = "Failed requests")
+        plt.plot(labels, y_tot, label="Total requests")
+        plt.plot(labels, y_fl, label="Failed requests")
         plt.ylabel("Number of requests")
-        plt.xlabel("Hour") 
+        plt.xlabel("Hour")
         plt.legend()
         plt.savefig("h.jpg")
         plt.close(fig)
-    
+
     # Most active hour
     if "Di" in SUBPARTS:
 
@@ -187,8 +190,8 @@ if __name__ == "__main__":
             map(lambda row: ((row[1][:11], int(row[1][-4:].split(":")[0])), 1)).\
             reduceByKey(add).\
             map(lambda row: (row[0][0], (row[0][1], row[1]))).\
-            reduceByKey(lambda x1, x2: max(x1, x2, key = lambda x: x[1])).\
-            sortBy(lambda row: row[0], ascending = True).\
+            reduceByKey(lambda x1, x2: max(x1, x2, key=lambda x: x[1])).\
+            sortBy(lambda row: row[0], ascending=True).\
             collect()
 
         with open("i.txt", "w+") as f:
@@ -204,7 +207,7 @@ if __name__ == "__main__":
         min_res = g_res.min()
         max_res = g_res.max()
         avg_res = g_res.mean()
-        
+
         with open("j.txt", "w+") as f:
             f.write("Response length statistics:\n")
             f.write(f"Minimum length: {min_res}\n")
