@@ -164,7 +164,7 @@ if __name__ == "__main__":
             collect()
 
         g_failed = hr_st.\
-            filter(lambda row: (row[1][0] == "4" or row[1][0] == "5")).\
+            filter(lambda row: int(row[1]) > 399).\
             map(lambda row: (row[0], 1)).\
             reduceByKey(add).\
             sortBy(lambda row: row[0], ascending=True).\
