@@ -30,7 +30,7 @@ def pprint(ll):
 
 def preprocess(row):
     # Match 5 groups
-    rgx = r"(\d+.\d+.\d+.\d+) .+ .+ \[(\d{2}\/\w{3}\/\d{4}:\d{2}:\d{2}:\d{2}) [\+|\-]\d{4}\] \"([A-Z]+) .+\" (\d{3}) (\d+) \".*\" \".*\" \".*\""
+    rgx = r"(\d+.\d+.\d+.\d+) - - \[(\d{2}\/\w{3}\/\d{4}:\d{2}:\d{2}:\d{2}) [\+|\-]\d{4}\] \"([A-Z]+) .+\" (\d{3}) (\d+) \".*\" \".*\" \".*\""
     m = re.match(rgx, row)
     if m:
         return [m.group(i + 1) for i in range(5)]
