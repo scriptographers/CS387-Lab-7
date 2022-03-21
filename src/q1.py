@@ -5,20 +5,23 @@ from pyspark.sql import SparkSession
 PATH = "groceries - groceries.csv"
 PATH_1B = "count.csv"
 
+
 def pprint(ll):
     print()
     for i, l in enumerate(ll):
         print(f"{i}:", ", ".join([str(li) for li in l]))
     print()
 
+
 def row2csv(row):
-    crow = ", ".join([str(i) for i in row])
-    return crow
+    return f'{row[0][0]},{row[0][1]},{row[1]}'
+
 
 def preprocess(row):
-    prow = row.split(",")[1:] # remove first column
-    prow = list(filter(len, prow)) # remove empty columns
+    prow = row.split(",")[1:]  # remove first column
+    prow = list(filter(len, prow))  # remove empty columns
     return prow
+
 
 def cross(row):
     cp = set()
@@ -31,6 +34,7 @@ def cross(row):
     cp = list(cp)
     return cp
 
+
 if __name__ == "__main__":
 
     # Start
@@ -42,7 +46,7 @@ if __name__ == "__main__":
 
     # Remove header
     header = g.first()
-    g = g.filter(lambda row: row != header) 
+    g = g.filter(lambda row: row != header)
     # pprint(g.take(5))
 
     # Cross-product per row
@@ -51,7 +55,7 @@ if __name__ == "__main__":
 
     # Flatten
     gaf = ga.flatMap(lambda row: row)
-    # print(gaf.take(5))
+    # pprint(gaf.take(5))
 
     # Count
     gc = gaf.map(lambda item: (item, 1))
@@ -60,18 +64,16 @@ if __name__ == "__main__":
 
     # Save as csv
     with open(PATH_1B, "w+") as f:
-        gc_list = gc.collect()
+        gc_list = gc.map(row2csv).collect()
         for row in gc_list:
-            row_str = f"{row[0][0]},{row[0][1]},{row[1]}"
-            f.write(row_str)
+            f.write(row)
             f.write("\n")
 
     # Top 5
-    gc_sorted = gc.sortBy(lambda row: row[1], ascending = False)
-    top5 = gc_sorted.take(5)
+    gc_sorted = gc.sortBy(lambda row: row[1], ascending=False)
+    top5 = gc_sorted.map(row2csv).take(5)
     for row in top5:
-        row_str = f"{row[0][0]},{row[0][1]},{row[1]}"
-        print(row_str)
+        print(row)
 
     # Stop
     spark.stop()
