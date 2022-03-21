@@ -2,8 +2,8 @@ from operator import add
 from pyspark.sql import SparkSession
 
 # Constants
-PATH = "../data/data1.csv"
-PATH_1B = "q1b.csv"
+PATH = "groceries - groceries.csv"
+PATH_1B = "count.csv"
 
 def pprint(ll):
     print()
@@ -43,32 +43,35 @@ if __name__ == "__main__":
     # Remove header
     header = g.first()
     g = g.filter(lambda row: row != header) 
-
-    pprint(g.take(5))
+    # pprint(g.take(5))
 
     # Cross-product per row
     ga = g.map(lambda row: cross(row))
-    pprint(ga.take(5))
+    # pprint(ga.take(5))
 
     # Flatten
     gaf = ga.flatMap(lambda row: row)
-    print(gaf.take(5))
+    # print(gaf.take(5))
 
     # Count
     gc = gaf.map(lambda item: (item, 1))
     gc = gc.reduceByKey(add)
-    pprint(gc.take(5))
+    # pprint(gc.take(5))
 
     # Save as csv
     with open(PATH_1B, "w+") as f:
-        gc_list = gc.map(lambda row: row2csv(row)).collect()
+        gc_list = gc.collect()
         for row in gc_list:
-            f.write(row)
+            row_str = f"{row[0][0]},{row[0][1]},{row[1]}"
+            f.write(row_str)
             f.write("\n")
 
     # Top 5
     gc_sorted = gc.sortBy(lambda row: row[1], ascending = False)
-    pprint(gc_sorted.take(5))
+    top5 = gc_sorted.take(5)
+    for row in top5:
+        row_str = f"{row[0][0]},{row[0][1]},{row[1]}"
+        print(row_str)
 
     # Stop
     spark.stop()
