@@ -74,9 +74,8 @@ if __name__ == "__main__":
     if "Db" in SUBPARTS:
         labels = [t[0] for t in stat_distr[:5]]
         counts = [t[1] for t in stat_distr[:5]]
-        fig = plt.figure()
-        plt.pie(counts, labels = labels, autopct="%1.2f%%")
-        fig.set_size_inches(6, 6)
+        fig = plt.figure(figsize=(10, 10))
+        plt.pie(counts, labels=labels, autopct="%1.2f%%", pctdistance=0.9, labeldistance=1.1)
         plt.savefig("b.jpg")
         plt.close(fig)
 
